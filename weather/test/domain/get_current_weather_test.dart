@@ -69,5 +69,18 @@ void main() {
         expect(createdWeather, equals(testWeather));
       },
     );
+
+    test(
+      'can transform model to json and back',
+      () async {
+        final weatherJson = getTestJson('mocks/mock_weather_response.json');
+        final model = WeatherModel.fromJson(weatherJson);
+
+        final createdJson = model.toJson();
+        final createdModel = WeatherModel.fromJson(createdJson);
+
+        expect(createdModel, equals(testWeatherModel));
+      },
+    );
   });
 }

@@ -51,5 +51,21 @@ void main() {
         expect(result.isError, equals(true));
       },
     );
+
+    test(
+      'should save and load model',
+          () async {
+        SharedPreferences.setMockInitialValues({});
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        LocalDataSourceImpl localDataSource = LocalDataSourceImpl(prefs);
+
+        await localDataSource.saveWeather(testCity, testWeatherModel);
+        final result = await localDataSource.getSavedWeather(testCity);
+
+        expect(result.isValue, equals(true));
+        expect(result.asValue?.value ?? "", equals(testWeatherModel));
+      },
+    );
+
   });
 }

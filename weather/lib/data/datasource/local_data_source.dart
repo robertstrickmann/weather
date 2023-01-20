@@ -23,8 +23,7 @@ class LocalDataSourceImpl implements LocalDataSource {
 
   @override
   Future<Result<WeatherModel>> getSavedWeather(City city) async {
-    String? storedWeatherJson =
-    prefs.getString(getWeatherKey(city));
+    String? storedWeatherJson = prefs.getString(getWeatherKey(city));
     if (storedWeatherJson == null) {
       return Result.error(Exception("no value stored"));
     } else {
@@ -35,6 +34,6 @@ class LocalDataSourceImpl implements LocalDataSource {
 
   @override
   Future saveWeather(City city, WeatherModel weather) async {
-    prefs.setString(getWeatherKey(city), weather.toJson().toString());
+    prefs.setString(getWeatherKey(city), jsonEncode(weather.toJson()));
   }
 }
