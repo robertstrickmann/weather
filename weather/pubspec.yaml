@@ -11,6 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+  shared_preferences: ^2.0.16
   http: ^0.13.5
   async: ^2.9.0
   equatable: ^2.0.5

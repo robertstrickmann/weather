@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:weather/data/datasource/local_data_source.dart';
 import 'package:weather/data/datasource/remote_data_source.dart';
 import 'package:weather/data/models/weather_model.dart';
 import 'package:weather/data/weather_urls.dart';
@@ -14,16 +16,8 @@ import 'package:http/http.dart' as http;
 import '../tools/tools.dart';
 
 void main() {
-  late MockHttpClient mockHttpClient;
-  late RemoteDataSourceImpl dataSource;
-
-  setUp(() {
-    mockHttpClient = MockHttpClient();
-    dataSource = RemoteDataSourceImpl(mockHttpClient);
-  });
-
-  group('get current weather', () {
-    final testWeatherString =
+  group('get saved weather', () {
+    final String testWeatherString =
         File(fixTestPath('mocks/mock_weather_response.json'))
             .readAsStringSync();
     final testWeatherModel =
@@ -31,16 +25,14 @@ void main() {
     final testCity = City.mainz;
 
     test(
-      'should return weather model on success',
+      'should return weather model if found',
       () async {
-        when(
-          mockHttpClient
-              .get(Uri.parse(WeatherUrls.getWeatherUrlByCity(testCity))),
-        ).thenAnswer(
-          (_) async => http.Response(testWeatherString, 200),
-        );
+        SharedPreferences.setMockInitialValues(
+            {LocalDataSourceImpl.getWeatherKey(testCity): testWeatherString});
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        LocalDataSourceImpl localDataSource = LocalDataSourceImpl(prefs);
 
-        final result = await dataSource.getCurrentWeather(testCity);
+        final result = await localDataSource.getSavedWeather(testCity);
 
         expect(result.isValue, equals(true));
         expect(result.asValue?.value ?? "", equals(testWeatherModel));
@@ -48,16 +40,13 @@ void main() {
     );
 
     test(
-      'should return error response on 404 or other',
+      'should return error response if nothing is found',
       () async {
-        when(
-          mockHttpClient
-              .get(Uri.parse(WeatherUrls.getWeatherUrlByCity(testCity))),
-        ).thenAnswer(
-          (_) async => http.Response('Not found', 404),
-        );
+        SharedPreferences.setMockInitialValues({});
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        LocalDataSourceImpl localDataSource = LocalDataSourceImpl(prefs);
 
-        final result = await dataSource.getCurrentWeather(testCity);
+        final result = await localDataSource.getSavedWeather(testCity);
 
         expect(result.isError, equals(true));
       },
