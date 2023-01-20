@@ -1,0 +1,8 @@
+Mainz
+https://api.openweathermap.org/data/3.0/onecall
+?lat=49.992863&lon=8.247253
+&exclude=minutely,hourly,daily,alerts&units=metric&appid=06192e20b646128f4fa22ba0f2b98a07
+
+
+Darmstadt,
+Wiesbaden
