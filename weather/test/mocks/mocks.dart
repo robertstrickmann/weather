@@ -1,16 +1,18 @@
 import 'package:mockito/annotations.dart';
 import 'package:http/http.dart' as http;
-import 'package:weather/data/datasource/local_data_source.dart';
-import 'package:weather/data/datasource/remote_data_source.dart';
+import 'package:weather/data/datasources/local_data_source.dart';
+import 'package:weather/data/datasources/remote_data_source.dart';
 import 'package:weather/domain/repositories/weather_repository.dart';
+import 'package:weather/domain/usecases/get_weather_use_case.dart';
 
-@GenerateMocks(
+@GenerateNiceMocks(
   [
-    WeatherRepository,
-    RemoteDataSource,
-    LocalDataSource
-  ],
-  customMocks: [MockSpec<http.Client>(as: #MockHttpClient)],
+    MockSpec<WeatherRepository>(),
+    MockSpec<RemoteDataSource>(),
+    MockSpec<LocalDataSource>(),
+    MockSpec<LoadWeatherUseCase>(),
+    MockSpec<http.Client>(as: #MockHttpClient)
+  ]
 )
 void main() {}
 

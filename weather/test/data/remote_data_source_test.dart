@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:mockito/mockito.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:weather/data/datasource/local_data_source.dart';
-import 'package:weather/data/datasource/remote_data_source.dart';
+import 'package:weather/data/datasources/remote_data_source.dart';
 import 'package:weather/data/models/weather_model.dart';
 import 'package:weather/data/weather_urls.dart';
 import 'package:weather/domain/entities/city.dart';
