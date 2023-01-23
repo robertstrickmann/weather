@@ -10,6 +10,7 @@ void main() {
     temperature: 0.78,
     pressure: 1007,
     humidity: 88,
+    iconId: "04n"
   );
 
   const testWeatherModel = WeatherModel(

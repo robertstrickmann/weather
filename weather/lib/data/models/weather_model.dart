@@ -50,11 +50,11 @@ class WeatherModel extends Equatable {
       };
 
   Weather toEntity() => Weather(
-        timestamp: timestamp,
-        temperature: temperature,
-        pressure: pressure,
-        humidity: humidity,
-      );
+      timestamp: timestamp,
+      temperature: temperature,
+      pressure: pressure,
+      humidity: humidity,
+      iconId: iconId);
 
   @override
   List<Object?> get props =>
