@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/domain/entities/weather.dart';
 import 'package:weather/presentation/bloc/load_weather_bloc.dart';
 import 'package:weather/presentation/bloc/load_weather_events.dart';
+import 'package:weather/presentation/bloc/lod_weather_states.dart';
 
 class WeatherPage extends StatelessWidget {
   const WeatherPage({Key? key}) : super(key: key);
@@ -14,28 +15,58 @@ class WeatherPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.blue,
         title: const Text(
           "Wetter",
-          style: TextStyle(color: Colors.blue),
+          style: TextStyle(color: Colors.white),
         ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.start,
-        children: const [
-          CitySelectToggle(),
-          Expanded(
-            child: WeatherDisplay(
-                weather: Weather(
-                    timestamp: 1,
-                    temperature: 12.0,
-                    pressure: 122,
-                    humidity: 12,
-                    iconId: "04n")),
-          )
+        children: [
+          const CitySelectToggle(),
+          BlocBuilder<LoadWeatherBloc, LoadWeatherState>(
+              builder: (context, state) {
+            return Column(children: [
+              Visibility(
+                  visible: state.isLoading,
+                  maintainAnimation: true,
+                  maintainState: true,
+                  maintainSize: true,
+                  child: const LinearProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  )),
+              ...state.weather != null
+                  ? [
+                      AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 250),
+                          child: WeatherDisplay(
+                            weather: state.weather!,
+                            key: ValueKey(state.weather),
+                          )),
+                    ]
+                  : [const LoadingFailedDisplay()]
+            ]);
+          })
         ],
       ),
+    );
+  }
+}
+
+class LoadingFailedDisplay extends StatelessWidget {
+  const LoadingFailedDisplay({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return const Center(
+      child: Padding(
+          padding: EdgeInsets.all(32),
+          // TODO: Hier könnte man noch genauer unterscheiden ob das Gerät gerade kein Netz hat oder es am Server liegt...
+          child: Text("Das Wetter weg. Versuch's noch mal.")),
     );
   }
 }
@@ -51,43 +82,64 @@ class WeatherDisplay extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(_getFormattedTime(weather.timestamp)),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Image(
-                    image: NetworkImage(
-                      WeatherUrls.getWeatherIconUrl(weather.iconId),
+          Padding(
+              padding: const EdgeInsets.only(top: 32),
+              child: Text(_getFormattedTime(weather.timestamp))),
+          IntrinsicHeight(
+            child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 16, left: 16, bottom: 16),
+                    child: ColoredBox(
+                      color: Colors.lightBlueAccent,
+                      child: Image(
+                        image: NetworkImage(
+                          WeatherUrls.getWeatherIconUrl(weather.iconId),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        WeatherRow(
-                            label: "Themperatur:",
-                            text: weather.temperature.toString()),
-                        WeatherRow(
-                            label: "Luftfeuchte:",
-                            text: weather.humidity.toString()),
-                        WeatherRow(
-                            label: "Luftdruck:",
-                            text: weather.pressure.toString()),
-                      ]),
-                ),
-              ]),
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(top: 16, right: 16, bottom: 16),
+                    child: ColoredBox(
+                      color: Colors.lightBlueAccent,
+                      child: Padding(
+                        padding: const EdgeInsets.all(1),
+                        child: ColoredBox(
+                          color: Colors.white,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  WeatherRow(
+                                      label: "Themperatur:",
+                                      text: weather.temperature.toString()),
+                                  WeatherRow(
+                                      label: "Luftfeuchte:",
+                                      text: weather.humidity.toString()),
+                                  WeatherRow(
+                                      label: "Luftdruck:",
+                                      text: weather.pressure.toString()),
+                                ]),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ]),
+          ),
         ]);
   }
 
   String _getFormattedTime(int timestampMs) {
-    var format = DateFormat('dd.MM.yyyy HH:mm:ss');
-    var date = DateTime.fromMillisecondsSinceEpoch(timestampMs);
+    var format = DateFormat('HH:mm:ss');
+    var date = DateTime.fromMillisecondsSinceEpoch(timestampMs * 1000);
     return format.format(date);
   }
 }
