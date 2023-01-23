@@ -38,9 +38,9 @@ void main() {
     () async {
       final List<ResultWithState<Weather>> repositoryEvents = [
         ResultWithState(
-            WebRequestState.remoteLoadingUsingCache, Result.value(testWeather)),
+            RequestState.loadingRemoteDeliveringCache, Result.value(testWeather)),
         ResultWithState(
-            WebRequestState.remoteSuccess, Result.value(testWeather))
+            RequestState.remoteLoadingSuccess, Result.value(testWeather))
       ];
       when(mockLoadWeatherUseCase.execute(testCity))
           .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
@@ -63,9 +63,9 @@ void main() {
     () async {
       final List<ResultWithState<Weather>> repositoryEvents = [
         ResultWithState(
-            WebRequestState.remoteLoadingUsingCache, Result.value(testWeather)),
+            RequestState.loadingRemoteDeliveringCache, Result.value(testWeather)),
         ResultWithState(
-            WebRequestState.remoteFailureUsingCache, Result.value(testWeather))
+            RequestState.remoteLoadingFailedDeliveringCache, Result.value(testWeather))
       ];
       when(mockLoadWeatherUseCase.execute(testCity))
           .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
@@ -88,9 +88,9 @@ void main() {
     () async {
       final List<ResultWithState<Weather>> repositoryEvents = [
         ResultWithState(
-            WebRequestState.remoteLoadingUsingCache, Result.error(Exception())),
+            RequestState.loadingRemoteDeliveringCache, Result.error(Exception())),
         ResultWithState(
-            WebRequestState.remoteSuccess, Result.value(testWeather))
+            RequestState.remoteLoadingSuccess, Result.value(testWeather))
       ];
       when(mockLoadWeatherUseCase.execute(testCity))
           .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
@@ -113,9 +113,9 @@ void main() {
     () async {
       final List<ResultWithState<Weather>> repositoryEvents = [
         ResultWithState(
-            WebRequestState.remoteLoadingUsingCache, Result.error(Exception())),
+            RequestState.loadingRemoteDeliveringCache, Result.error(Exception())),
         ResultWithState(
-            WebRequestState.remoteFailureUsingCache, Result.error(Exception()))
+            RequestState.remoteLoadingFailedDeliveringCache, Result.error(Exception()))
       ];
       when(mockLoadWeatherUseCase.execute(testCity))
           .thenAnswer((_) => Stream.fromIterable(repositoryEvents));

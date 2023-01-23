@@ -15,7 +15,7 @@ class LoadWeatherBloc extends Bloc<LoadWeatherEvent, LoadWeatherState> {
       emit(const LoadWeatherState(null, true));
 
       await emit.forEach(_loadWeatherUseCase.execute(city), onData: (event) {
-        if (event.requestState == WebRequestState.remoteLoadingUsingCache) {
+        if (event.requestState == RequestState.loadingRemoteDeliveringCache) {
           return LoadWeatherState(event.result.asValue?.value, true);
         } else {
           return LoadWeatherState(event.result.asValue?.value, false);

@@ -52,10 +52,10 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      WebRequestState.remoteLoadingUsingCache &&
+                      RequestState.loadingRemoteDeliveringCache &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               predicate<ResultWithState<Weather>>((result) =>
-                  result.requestState == WebRequestState.remoteSuccess &&
+                  result.requestState == RequestState.remoteLoadingSuccess &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               emitsDone
             ]));
@@ -79,11 +79,11 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      WebRequestState.remoteLoadingUsingCache &&
+                      RequestState.loadingRemoteDeliveringCache &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      WebRequestState.remoteFailureUsingCache &&
+                      RequestState.remoteLoadingFailedDeliveringCache &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               emitsDone
             ]));
@@ -107,10 +107,10 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      WebRequestState.remoteLoadingUsingCache &&
+                      RequestState.loadingRemoteDeliveringCache &&
                   result.result.isError),
               predicate<ResultWithState<Weather>>((result) =>
-                  result.requestState == WebRequestState.remoteSuccess &&
+                  result.requestState == RequestState.remoteLoadingSuccess &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               emitsDone
             ]));
@@ -134,11 +134,11 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      WebRequestState.remoteLoadingUsingCache &&
+                      RequestState.loadingRemoteDeliveringCache &&
                   result.result.isError),
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      WebRequestState.remoteFailureUsingCache &&
+                      RequestState.remoteLoadingFailedDeliveringCache &&
                   result.result.isError),
               emitsDone
             ]));

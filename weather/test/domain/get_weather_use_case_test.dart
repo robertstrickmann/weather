@@ -33,7 +33,7 @@ void main() {
     'should load weather from repo',
     () async {
       var testResult = ResultWithState<Weather>(
-          WebRequestState.remoteSuccess,
+          RequestState.remoteLoadingSuccess,
           Result<Weather>.value(const Weather(
               timestamp: 1,
               temperature: 1,

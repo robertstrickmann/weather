@@ -19,9 +19,9 @@ class WeatherRepositoryImpl implements WeatherRepository {
     Weather? savedWeather = localResult.asValue?.value.toEntity();
     if (savedWeather != null) {
       yield ResultWithState(
-          WebRequestState.remoteLoadingUsingCache, Result.value(savedWeather));
+          RequestState.loadingRemoteDeliveringCache, Result.value(savedWeather));
     } else {
-      yield ResultWithState(WebRequestState.remoteLoadingUsingCache,
+      yield ResultWithState(RequestState.loadingRemoteDeliveringCache,
           Result.error(Exception("No local weather found")));
     }
 
@@ -30,13 +30,13 @@ class WeatherRepositoryImpl implements WeatherRepository {
     WeatherModel? remoteWeather = remoteResult.asValue?.value;
     if (remoteWeather != null) {
       await localDataSource.saveWeather(city, remoteWeather);
-      yield ResultWithState(WebRequestState.remoteSuccess,
+      yield ResultWithState(RequestState.remoteLoadingSuccess,
           Result.value(remoteWeather.toEntity()));
     } else if (savedWeather != null) {
       yield ResultWithState(
-          WebRequestState.remoteFailureUsingCache, Result.value(savedWeather));
+          RequestState.remoteLoadingFailedDeliveringCache, Result.value(savedWeather));
     } else {
-      yield ResultWithState(WebRequestState.remoteFailureUsingCache,
+      yield ResultWithState(RequestState.remoteLoadingFailedDeliveringCache,
           Result.error(Exception("No weather found")));
     }
   }

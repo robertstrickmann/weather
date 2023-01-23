@@ -176,7 +176,8 @@ class CitySelectToggle extends StatelessWidget {
     City.mainz,
     City.wiesbaden,
     City.darmstadt,
-    City.frankfurtAmMain
+    City.frankfurtAmMain,
+    City.currentLocation
   ];
 
   @override
