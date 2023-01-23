@@ -10,7 +10,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   injection.init();
   await injection.locator.allReady();
-  injection.locator<SelectedCityBloc>().add(SelectedCityEventLoadLastSelected());
   runApp(const WeatherApp());
 }
 
@@ -19,10 +18,13 @@ class WeatherApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var selectCityBloc = injection.locator<SelectedCityBloc>();
+    selectCityBloc.add(SelectedCityEventLoadLastSelected());
+
     return MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => injection.locator<LoadWeatherBloc>()),
-        BlocProvider(create: (_) => injection.locator<SelectedCityBloc>())
+        BlocProvider(create: (_) => selectCityBloc)
       ],
       child: MaterialApp(
         title: 'Weather',

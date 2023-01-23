@@ -49,7 +49,9 @@ class WeatherPage extends StatelessWidget {
                             key: ValueKey(state.weather),
                           )),
                     ]
-                  : [const LoadingFailedDisplay()]
+                  : state.isLoading
+                      ? []
+                      : [const LoadingFailedDisplay()]
             ]);
           })
         ],
@@ -185,6 +187,9 @@ class CitySelectToggle extends StatelessWidget {
       if (state is SelectedCityStateCityChanged) {
         isSelectedList =
             _selectableCities.map((e) => e.name == state.city.name).toList();
+        context
+            .read<LoadWeatherBloc>()
+            .add(LoadWeatherEventCityChanged(state.city));
       } else {
         isSelectedList = _selectableCities.map((e) => false).toList();
       }
@@ -193,9 +198,6 @@ class CitySelectToggle extends StatelessWidget {
         direction: Axis.vertical,
         isSelected: isSelectedList,
         onPressed: (int index) {
-          context
-              .read<LoadWeatherBloc>()
-              .add(LoadWeatherEventCityChanged(_selectableCities[index]));
           context
               .read<SelectedCityBloc>()
               .add(SelectedCityEventSetSelected(_selectableCities[index]));
