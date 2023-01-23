@@ -8,7 +8,8 @@ class LoadWeatherUseCase {
 
   LoadWeatherUseCase(this.repository);
 
-  Stream<ResultWithState<Weather>> execute(City city) {
-    return repository.getCurrentWeather(city);
+  Stream<ResultWithState<Weather>> execute(City city) async* {
+    await repository.setLastSelectedCity(city);
+    yield* repository.getCurrentWeather(city);
   }
 }

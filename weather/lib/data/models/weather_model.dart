@@ -32,7 +32,7 @@ class WeatherModel extends Equatable {
         temperature: json[_keyCurrent][_keyTemperature],
         pressure: json[_keyCurrent][_keyPressure],
         humidity: json[_keyCurrent][_keyHumidity],
-        // TODO: Array can be empty or null?
+        //TODO: Array can be empty or null?
         description: json[_keyCurrent][_keyWeather][0][_keyDescription],
         iconId: json[_keyCurrent][_keyWeather][0][_keyIcon],
       );

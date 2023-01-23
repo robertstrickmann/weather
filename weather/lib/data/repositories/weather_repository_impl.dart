@@ -30,14 +30,22 @@ class WeatherRepositoryImpl implements WeatherRepository {
     WeatherModel? remoteWeather = remoteResult.asValue?.value;
     if (remoteWeather != null) {
       await localDataSource.saveWeather(city, remoteWeather);
-      yield ResultWithState(
-          WebRequestState.remoteSuccess, Result.value(remoteWeather.toEntity()));
+      yield ResultWithState(WebRequestState.remoteSuccess,
+          Result.value(remoteWeather.toEntity()));
     } else if (savedWeather != null) {
       yield ResultWithState(
           WebRequestState.remoteFailureUsingCache, Result.value(savedWeather));
     } else {
-      yield ResultWithState(
-          WebRequestState.remoteFailureUsingCache, Result.error(Exception("No weather found")));
+      yield ResultWithState(WebRequestState.remoteFailureUsingCache,
+          Result.error(Exception("No weather found")));
     }
   }
+
+  @override
+  Future<City> getLastSelectedCity() async =>
+      localDataSource.getLastSelectedCity();
+
+  @override
+  Future setLastSelectedCity(City city) async =>
+      localDataSource.setLastSelectedCity(city);
 }

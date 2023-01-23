@@ -1,4 +1,9 @@
+import 'package:async/async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/mockito.dart';
+import 'package:weather/domain/entities/city.dart';
+import 'package:weather/domain/entities/weather.dart';
+import 'package:weather/domain/repositories/weather_repository.dart';
 import 'package:weather/domain/usecases/get_weather_use_case.dart';
 
 import '../mocks/mocks.mocks.dart';
@@ -12,20 +17,42 @@ void main() {
     getWeatherUseCase = LoadWeatherUseCase(mockWeatherRepository);
   });
 
-  // FIXME: sinnfreier Test
+  const City testCity = City.mainz;
+
   test(
-    'should get current weather',
+    'should save city when loading weather',
     () async {
-// FIXME: same test as repository. A bit boring...
-      /*
-      when(mockWeatherRepository.getCurrentWeather(testCity))
-          .thenAnswer((_) async => Result.value(testWeather));
+      final resultStream = getWeatherUseCase.execute(testCity);
+      await resultStream.drain();
 
-      final result =
-          await getWeatherUseCase.execute(testLongitude, testLatitude);
+      verify(mockWeatherRepository.setLastSelectedCity(testCity));
+    },
+  );
 
-      expect(result, equals(Result.value(testWeather)));
-      */
+  test(
+    'should load weather from repo',
+    () async {
+      var testResult = ResultWithState<Weather>(
+          WebRequestState.remoteSuccess,
+          Result<Weather>.value(const Weather(
+              timestamp: 1,
+              temperature: 1,
+              pressure: 1,
+              humidity: 1,
+              iconId: "")));
+      when(mockWeatherRepository.getCurrentWeather(any))
+          .thenAnswer((realInvocation) => Stream.fromIterable([testResult]));
+      final resultStream = getWeatherUseCase.execute(testCity);
+
+      expect(
+          resultStream,
+          emitsInOrder([
+            predicate<ResultWithState<Weather>>((result) =>
+                result.requestState == testResult.requestState &&
+                result.result.asValue?.value ==
+                    testResult.result.asValue?.value),
+            emitsDone
+          ]));
     },
   );
 }

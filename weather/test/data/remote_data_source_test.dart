@@ -28,7 +28,7 @@ void main() {
             .readAsStringSync();
     final testWeatherModel =
         WeatherModel.fromJson(json.decode(testWeatherString));
-    final testCity = City.mainz;
+    const testCity = City.mainz;
 
     test(
       'should return weather model on success',

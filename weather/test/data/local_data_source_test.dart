@@ -11,13 +11,14 @@ import 'package:flutter_test/flutter_test.dart';
 import '../tools/tools.dart';
 
 void main() {
+  const testCity = City.mainz;
+
   group('get saved weather', () {
     final String testWeatherString =
         File(fixTestPath('mocks/mock_weather_response.json'))
             .readAsStringSync();
     final testWeatherModel =
         WeatherModel.fromJson(json.decode(testWeatherString));
-    final testCity = City.mainz;
 
     test(
       'should return weather model if found',
@@ -62,4 +63,18 @@ void main() {
       },
     );
   });
+
+    test(
+      'should save and load last selected city',
+      () async {
+        SharedPreferences.setMockInitialValues({});
+        final SharedPreferences prefs = await SharedPreferences.getInstance();
+        LocalDataSourceImpl localDataSource = LocalDataSourceImpl(prefs);
+
+        await localDataSource.setLastSelectedCity(testCity);
+        final result = await localDataSource.getLastSelectedCity();
+
+        expect(result, equals(testCity));
+      },
+    );
 }
