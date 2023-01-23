@@ -2,7 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/domain/repositories/weather_repository.dart';
 import 'package:weather/domain/usecases/get_weather_use_case.dart';
 import 'package:weather/presentation/bloc/load_weather_events.dart';
-import 'package:weather/presentation/bloc/lod_weather_states.dart';
+import 'package:weather/presentation/bloc/load_weather_states.dart';
 
 class LoadWeatherBloc extends Bloc<LoadWeatherEvent, LoadWeatherState> {
   final LoadWeatherUseCase _loadWeatherUseCase;

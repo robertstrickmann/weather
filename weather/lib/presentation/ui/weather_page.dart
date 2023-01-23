@@ -6,7 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/domain/entities/weather.dart';
 import 'package:weather/presentation/bloc/load_weather_bloc.dart';
 import 'package:weather/presentation/bloc/load_weather_events.dart';
-import 'package:weather/presentation/bloc/lod_weather_states.dart';
+import 'package:weather/presentation/bloc/load_weather_states.dart';
+import 'package:weather/presentation/bloc/selected_city_bloc.dart';
+import 'package:weather/presentation/bloc/selected_city_events.dart';
+import 'package:weather/presentation/bloc/selected_city_states.dart';
 
 class WeatherPage extends StatelessWidget {
   const WeatherPage({Key? key}) : super(key: key);
@@ -25,7 +28,7 @@ class WeatherPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const CitySelectToggle(),
+          CitySelectToggle(),
           BlocBuilder<LoadWeatherBloc, LoadWeatherState>(
               builder: (context, state) {
             return Column(children: [
@@ -164,46 +167,41 @@ class WeatherRow extends StatelessWidget {
   }
 }
 
-class CitySelectToggle extends StatefulWidget {
-  const CitySelectToggle({Key? key}) : super(key: key);
+class CitySelectToggle extends StatelessWidget {
+  CitySelectToggle({Key? key}) : super(key: key);
 
-  @override
-  State<CitySelectToggle> createState() => _CitySelectToggleState();
-}
-
-class _CitySelectToggleState extends State<CitySelectToggle> {
-  // TODO: Wählbare Städte zusammen mit letzter Wahl über Bloc aus Repo laden
-  // TODO: gewählte Stadt in "lade Wetter" Block speichern
-  // TODO "Lade Wetter" darf nur Stadt-ID bekommen. Muss anschließend selbst Koordinaten bestimmen und ggf. Permissions erfragen um GPS anwerfen zu können
   final List<City> _selectableCities = <City>[
     City.mainz,
     City.wiesbaden,
     City.darmstadt,
     City.frankfurtAmMain
   ];
-  final List<bool> _isSelectedList = <bool>[true, false, false, false];
 
   @override
   Widget build(BuildContext context) {
-    return ToggleButtons(
-      direction: Axis.vertical,
-      isSelected: _isSelectedList,
-      onPressed: (int index) {
-        setState(() {
-          for (int buttonIndex = 0;
-              buttonIndex < _isSelectedList.length;
-              buttonIndex++) {
-            if (buttonIndex == index) {
-              _isSelectedList[buttonIndex] = true;
-              context.read<LoadWeatherBloc>().add(
-                  LoadWeatherEventCityChanged(_selectableCities[buttonIndex]));
-            } else {
-              _isSelectedList[buttonIndex] = false;
-            }
-          }
-        });
-      },
-      children: _selectableCities.map((city) => Text(city.name)).toList(),
-    );
+    return BlocBuilder<SelectedCityBloc, SelectedCityState>(
+        builder: (context, state) {
+      List<bool> isSelectedList;
+      if (state is SelectedCityStateCityChanged) {
+        isSelectedList =
+            _selectableCities.map((e) => e.name == state.city.name).toList();
+      } else {
+        isSelectedList = _selectableCities.map((e) => false).toList();
+      }
+
+      return ToggleButtons(
+        direction: Axis.vertical,
+        isSelected: isSelectedList,
+        onPressed: (int index) {
+          context
+              .read<LoadWeatherBloc>()
+              .add(LoadWeatherEventCityChanged(_selectableCities[index]));
+          context
+              .read<SelectedCityBloc>()
+              .add(SelectedCityEventSetSelected(_selectableCities[index]));
+        },
+        children: _selectableCities.map((city) => Text(city.name)).toList(),
+      );
+    });
   }
 }

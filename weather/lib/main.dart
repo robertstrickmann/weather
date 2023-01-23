@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/presentation/bloc/load_weather_bloc.dart';
+import 'package:weather/presentation/bloc/selected_city_bloc.dart';
+import 'package:weather/presentation/bloc/selected_city_events.dart';
 import 'package:weather/presentation/ui/weather_page.dart';
 import 'locator.dart' as injection;
 
@@ -8,6 +10,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   injection.init();
   await injection.locator.allReady();
+  injection.locator<SelectedCityBloc>().add(SelectedCityEventLoadLastSelected());
   runApp(const WeatherApp());
 }
 
@@ -18,7 +21,8 @@ class WeatherApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => injection.locator<LoadWeatherBloc>())
+        BlocProvider(create: (_) => injection.locator<LoadWeatherBloc>()),
+        BlocProvider(create: (_) => injection.locator<SelectedCityBloc>())
       ],
       child: MaterialApp(
         title: 'Weather',

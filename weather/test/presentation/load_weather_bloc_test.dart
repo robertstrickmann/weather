@@ -7,7 +7,7 @@ import 'package:weather/domain/entities/weather.dart';
 import 'package:weather/domain/repositories/weather_repository.dart';
 import 'package:weather/presentation/bloc/load_weather_bloc.dart';
 import 'package:weather/presentation/bloc/load_weather_events.dart';
-import 'package:weather/presentation/bloc/lod_weather_states.dart';
+import 'package:weather/presentation/bloc/load_weather_states.dart';
 
 import '../mocks/mocks.mocks.dart';
 import '../tools/tools.dart';
