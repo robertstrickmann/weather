@@ -1,3 +1,4 @@
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,7 +16,8 @@ final locator = GetIt.instance;
 
 init() async {
   // bloc
-  locator.registerFactory(() => LoadWeatherBloc(locator()));
+  locator.registerFactory(() =>
+      LoadWeatherBloc(geoLocator: locator(), loadWeatherUseCase: locator()));
   locator.registerFactory(() => SelectedCityBloc(locator(), locator()));
 
   // usecases
@@ -34,11 +36,12 @@ init() async {
   );
 
   locator.registerLazySingleton<LocalDataSource>(
-    () => LocalDataSourceImpl(locator()),
+    () => LocalDataSourceImpl(prefs: locator()),
   );
 
   // External
   locator.registerLazySingleton(() => http.Client());
   locator.registerSingletonAsync<SharedPreferences>(
       () => SharedPreferences.getInstance());
+  locator.registerLazySingleton(() => GeolocatorPlatform.instance);
 }

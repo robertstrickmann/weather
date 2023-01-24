@@ -1,11 +1,9 @@
 import 'dart:convert';
 
 import 'package:async/async.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:weather/data/models/city_model.dart';
 import 'package:weather/data/models/weather_model.dart';
-import 'package:weather/data/weather_urls.dart';
 import 'package:weather/domain/entities/city.dart';
 
 abstract class LocalDataSource {
@@ -23,7 +21,7 @@ class LocalDataSourceImpl implements LocalDataSource {
   static const String keyLastSelectedCity = "LAST_SELECTED_CITY";
   final SharedPreferences prefs;
 
-  LocalDataSourceImpl(this.prefs);
+  LocalDataSourceImpl({required this.prefs});
 
   static String getWeatherKey(City city) => '$weatherKeyPrefix${city.name}';
 

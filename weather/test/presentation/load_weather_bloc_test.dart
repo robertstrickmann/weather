@@ -1,5 +1,6 @@
 import 'package:async/async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mockito/mockito.dart';
 import 'package:weather/data/models/weather_model.dart';
 import 'package:weather/domain/entities/city.dart';
@@ -13,122 +14,163 @@ import '../mocks/mocks.mocks.dart';
 import '../tools/tools.dart';
 
 void main() {
-  late MockLoadWeatherUseCase mockLoadWeatherUseCase;
+  late MockLoadWeatherUseCase mocLoadWeatherUseCase;
+  late MockGeolocatorPlatform mockGeoLocator;
   late LoadWeatherBloc weatherBloc;
-  City testCity = City.mainz;
+  const City testCity = City.mainz;
+  final testPosition = Position(
+      longitude: 1,
+      latitude: 1,
+      timestamp: DateTime.fromMillisecondsSinceEpoch(1),
+      accuracy: 1,
+      altitude: 1,
+      heading: 1,
+      speed: 1,
+      speedAccuracy: 1);
+  final City testCityCurrentLocation = City(
+      name: City.currentLocation.name,
+      lat: testPosition.latitude,
+      lon: testPosition.longitude);
 
   final weatherJson = getTestJson('mocks/mock_weather_response.json');
   final testWeatherModel = WeatherModel.fromJson(weatherJson);
   final testWeather = testWeatherModel.toEntity();
 
   setUp(() {
-    mockLoadWeatherUseCase = MockLoadWeatherUseCase();
-    weatherBloc = LoadWeatherBloc(mockLoadWeatherUseCase);
+    mocLoadWeatherUseCase = MockLoadWeatherUseCase();
+    mockGeoLocator = MockGeolocatorPlatform();
+    weatherBloc = LoadWeatherBloc(
+        loadWeatherUseCase: mocLoadWeatherUseCase, geoLocator: mockGeoLocator);
   });
 
   test(
-    'should start in empty non loading state',
+    'should start loading state',
     () async {
-      expect(weatherBloc.state, const LoadWeatherState(null, false));
+      expect(weatherBloc.state, const LoadWeatherStateLoading());
     },
   );
 
   test(
-    'should emit matching local success and remote success',
+    'should recognize repository results',
     () async {
       final List<ResultWithState<Weather>> repositoryEvents = [
         ResultWithState(
-            RequestState.loadingRemoteDeliveringCache, Result.value(testWeather)),
-        ResultWithState(
-            RequestState.remoteLoadingSuccess, Result.value(testWeather))
+            WeatherRequestState.remoteLoadingSuccess, Result.value(testWeather))
       ];
-      when(mockLoadWeatherUseCase.execute(testCity))
+      when(mocLoadWeatherUseCase.execute(any))
           .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
 
       final blocStream = weatherBloc.stream;
-      weatherBloc.add(LoadWeatherEventCityChanged(testCity));
+      weatherBloc.add(const LoadWeatherEventCityChanged(testCity));
 
       expect(
           blocStream,
           emitsInOrder([
-            const LoadWeatherState(null, true),
-            LoadWeatherState(testWeather, true),
-            LoadWeatherState(testWeather, false),
+            const LoadWeatherStateLoading(),
+            LoadWeatherStateRemoteSuccess(testWeather),
           ]));
     },
   );
 
   test(
-    'should emit matching local success and remote failure',
+    'should query weather for current location',
     () async {
       final List<ResultWithState<Weather>> repositoryEvents = [
         ResultWithState(
-            RequestState.loadingRemoteDeliveringCache, Result.value(testWeather)),
-        ResultWithState(
-            RequestState.remoteLoadingFailedDeliveringCache, Result.value(testWeather))
+            WeatherRequestState.remoteLoadingSuccess, Result.value(testWeather))
       ];
-      when(mockLoadWeatherUseCase.execute(testCity))
+      when(mocLoadWeatherUseCase.execute(testCityCurrentLocation))
           .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
 
+      when(mockGeoLocator.getCurrentPosition())
+          .thenAnswer((realInvocation) => Future.value(testPosition));
+      when(mockGeoLocator.checkPermission()).thenAnswer(
+          (realInvocation) => Future.value(LocationPermission.always));
+      when(mockGeoLocator.isLocationServiceEnabled())
+          .thenAnswer((realInvocation) => Future.value(true));
+
+      weatherBloc.add(const LoadWeatherEventCityChanged(City.currentLocation));
       final blocStream = weatherBloc.stream;
-      weatherBloc.add(LoadWeatherEventCityChanged(testCity));
 
       expect(
           blocStream,
           emitsInOrder([
-            const LoadWeatherState(null, true),
-            LoadWeatherState(testWeather, true),
-            LoadWeatherState(testWeather, false),
+            const LoadWeatherStateLoading(),
+            LoadWeatherStateRemoteSuccess(testWeather),
+          ]));
+    },
+  );
+
+  setUpLocationTest() {
+    final List<ResultWithState<Weather>> repositoryEvents = [
+      ResultWithState(
+          WeatherRequestState.remoteLoadingSuccess, Result.value(testWeather))
+    ];
+    when(mocLoadWeatherUseCase.execute(any))
+        .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
+    when(mockGeoLocator.getCurrentPosition())
+        .thenAnswer((realInvocation) => Future.value(testPosition));
+  }
+
+  test(
+    'should recognize denied location permission',
+    () async {
+      setUpLocationTest();
+      when(mockGeoLocator.isLocationServiceEnabled())
+          .thenAnswer((realInvocation) => Future.value(true));
+      when(mockGeoLocator.checkPermission()).thenAnswer(
+          (realInvocation) => Future.value(LocationPermission.denied));
+
+      weatherBloc.add(const LoadWeatherEventCityChanged(City.currentLocation));
+      final blocStream = weatherBloc.stream;
+
+      expect(
+          blocStream,
+          emitsInOrder([
+            const LoadWeatherStateLoading(),
+            const LoadWeatherStateLocationPermissionDenied(),
           ]));
     },
   );
 
   test(
-    'should emit matching local failure and remote success',
+    'should recognize forever denied location permission',
     () async {
-      final List<ResultWithState<Weather>> repositoryEvents = [
-        ResultWithState(
-            RequestState.loadingRemoteDeliveringCache, Result.error(Exception())),
-        ResultWithState(
-            RequestState.remoteLoadingSuccess, Result.value(testWeather))
-      ];
-      when(mockLoadWeatherUseCase.execute(testCity))
-          .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
+      setUpLocationTest();
+      when(mockGeoLocator.isLocationServiceEnabled())
+          .thenAnswer((realInvocation) => Future.value(true));
+      when(mockGeoLocator.checkPermission()).thenAnswer(
+          (realInvocation) => Future.value(LocationPermission.deniedForever));
 
+      weatherBloc.add(const LoadWeatherEventCityChanged(City.currentLocation));
       final blocStream = weatherBloc.stream;
-      weatherBloc.add(LoadWeatherEventCityChanged(testCity));
 
       expect(
           blocStream,
           emitsInOrder([
-            const LoadWeatherState(null, true),
-            // const LoadWeatherState(null, true), // no emission of duplicates
-            LoadWeatherState(testWeather, false),
+            const LoadWeatherStateLoading(),
+            const LoadWeatherStateLocationPermissionDeniedForever(),
           ]));
     },
   );
 
   test(
-    'should emit matching local failure and remote failure',
+    'should recognize disabled location service',
     () async {
-      final List<ResultWithState<Weather>> repositoryEvents = [
-        ResultWithState(
-            RequestState.loadingRemoteDeliveringCache, Result.error(Exception())),
-        ResultWithState(
-            RequestState.remoteLoadingFailedDeliveringCache, Result.error(Exception()))
-      ];
-      when(mockLoadWeatherUseCase.execute(testCity))
-          .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
+      setUpLocationTest();
+      when(mockGeoLocator.isLocationServiceEnabled())
+          .thenAnswer((realInvocation) => Future.value(false));
+      when(mockGeoLocator.checkPermission()).thenAnswer(
+          (realInvocation) => Future.value(LocationPermission.always));
 
+      weatherBloc.add(const LoadWeatherEventCityChanged(City.currentLocation));
       final blocStream = weatherBloc.stream;
-      weatherBloc.add(LoadWeatherEventCityChanged(testCity));
 
       expect(
           blocStream,
           emitsInOrder([
-            const LoadWeatherState(null, true),
-            //const LoadWeatherState(null, true), // no emission of duplicates
-            const LoadWeatherState(null, false),
+            const LoadWeatherStateLoading(),
+            const LoadWeatherStateLocationServiceDisabled(),
           ]));
     },
   );

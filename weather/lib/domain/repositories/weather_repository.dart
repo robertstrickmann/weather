@@ -10,14 +10,13 @@ abstract class WeatherRepository {
   Future setLastSelectedCity(City city);
 }
 
-enum RequestState {
-  loadingRemoteDeliveringCache,
-  remoteLoadingFailedDeliveringCache,
-  remoteLoadingSuccess
+enum WeatherRequestState {
+  remoteLoadingFailed,
+  remoteLoadingSuccess,
 }
 
 class ResultWithState<T> {
-  RequestState requestState;
+  WeatherRequestState requestState;
   Result<T> result;
 
   ResultWithState(this.requestState, this.result);

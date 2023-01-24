@@ -1,4 +1,5 @@
 import 'package:async/async.dart';
+import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:weather/data/datasources/local_data_source.dart';
 import 'package:weather/data/datasources/remote_data_source.dart';
 import 'package:weather/data/models/weather_model.dart';
@@ -14,30 +15,27 @@ class WeatherRepositoryImpl implements WeatherRepository {
 
   @override
   Stream<ResultWithState<Weather>> getCurrentWeather(City city) async* {
-    Result<WeatherModel> localResult =
-        await localDataSource.getSavedWeather(city);
-    Weather? savedWeather = localResult.asValue?.value.toEntity();
-    if (savedWeather != null) {
-      yield ResultWithState(
-          RequestState.loadingRemoteDeliveringCache, Result.value(savedWeather));
-    } else {
-      yield ResultWithState(RequestState.loadingRemoteDeliveringCache,
-          Result.error(Exception("No local weather found")));
-    }
 
     Result<WeatherModel> remoteResult =
         await remoteDataSource.getCurrentWeather(city);
     WeatherModel? remoteWeather = remoteResult.asValue?.value;
+
     if (remoteWeather != null) {
       await localDataSource.saveWeather(city, remoteWeather);
-      yield ResultWithState(RequestState.remoteLoadingSuccess,
+      yield ResultWithState(WeatherRequestState.remoteLoadingSuccess,
           Result.value(remoteWeather.toEntity()));
-    } else if (savedWeather != null) {
-      yield ResultWithState(
-          RequestState.remoteLoadingFailedDeliveringCache, Result.value(savedWeather));
     } else {
-      yield ResultWithState(RequestState.remoteLoadingFailedDeliveringCache,
-          Result.error(Exception("No weather found")));
+      Result<WeatherModel> localResult =
+          await localDataSource.getSavedWeather(city);
+      Weather? savedWeather = localResult.asValue?.value.toEntity();
+
+      if (savedWeather != null) {
+        yield ResultWithState(WeatherRequestState.remoteLoadingFailed,
+            Result.value(savedWeather));
+      } else {
+        yield ResultWithState(WeatherRequestState.remoteLoadingFailed,
+            Result.error(Exception("No weather found")));
+      }
     }
   }
 

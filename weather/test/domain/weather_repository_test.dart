@@ -36,7 +36,7 @@ void main() {
     const testCity = City.mainz;
 
     test(
-      'should emit local and remote weather',
+      'should emit remote weather if local and remote success',
       () async {
         when(
           localDataSource.getSavedWeather(testCity),
@@ -52,10 +52,7 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      RequestState.loadingRemoteDeliveringCache &&
-                  result.result.asValue?.value == testWeatherModel.toEntity()),
-              predicate<ResultWithState<Weather>>((result) =>
-                  result.requestState == RequestState.remoteLoadingSuccess &&
+                      WeatherRequestState.remoteLoadingSuccess &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               emitsDone
             ]));
@@ -63,7 +60,7 @@ void main() {
     );
 
     test(
-      'should emit local weather again if remote fails',
+      'should emit local weather if remote fails',
       () async {
         when(
           localDataSource.getSavedWeather(testCity),
@@ -79,11 +76,7 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      RequestState.loadingRemoteDeliveringCache &&
-                  result.result.asValue?.value == testWeatherModel.toEntity()),
-              predicate<ResultWithState<Weather>>((result) =>
-                  result.requestState ==
-                      RequestState.remoteLoadingFailedDeliveringCache &&
+                      WeatherRequestState.remoteLoadingFailed &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               emitsDone
             ]));
@@ -91,7 +84,7 @@ void main() {
     );
 
     test(
-      'should emit remote weather only if local fails',
+      'should emit remote weather if local fails',
       () async {
         when(
           localDataSource.getSavedWeather(testCity),
@@ -107,10 +100,7 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      RequestState.loadingRemoteDeliveringCache &&
-                  result.result.isError),
-              predicate<ResultWithState<Weather>>((result) =>
-                  result.requestState == RequestState.remoteLoadingSuccess &&
+                      WeatherRequestState.remoteLoadingSuccess &&
                   result.result.asValue?.value == testWeatherModel.toEntity()),
               emitsDone
             ]));
@@ -134,11 +124,7 @@ void main() {
             emitsInOrder([
               predicate<ResultWithState<Weather>>((result) =>
                   result.requestState ==
-                      RequestState.loadingRemoteDeliveringCache &&
-                  result.result.isError),
-              predicate<ResultWithState<Weather>>((result) =>
-                  result.requestState ==
-                      RequestState.remoteLoadingFailedDeliveringCache &&
+                      WeatherRequestState.remoteLoadingFailed &&
                   result.result.isError),
               emitsDone
             ]));
