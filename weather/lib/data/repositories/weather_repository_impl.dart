@@ -1,5 +1,4 @@
 import 'package:async/async.dart';
-import 'package:geolocator_platform_interface/src/models/position.dart';
 import 'package:weather/data/datasources/local_data_source.dart';
 import 'package:weather/data/datasources/remote_data_source.dart';
 import 'package:weather/data/models/weather_model.dart';

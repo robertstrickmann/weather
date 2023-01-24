@@ -18,18 +18,17 @@ class RemoteDataSourceImpl implements RemoteDataSource {
   @override
   Future<Result<WeatherModel>> getCurrentWeather(City city) async {
     Uri weatherUri = Uri.parse(WeatherUrls.getWeatherUrlByCity(city));
-    final response = await client.get(weatherUri);
-
-    if (response.statusCode == 200) {
-      try {
+    try {
+      final response = await client.get(weatherUri);
+      if (response.statusCode == 200) {
         WeatherModel weather =
             WeatherModel.fromJson(json.decode(response.body));
         return Result.value(weather);
-      } catch (e) {
-        return Result.error(e);
+      } else {
+        return Result.error(Exception(response.reasonPhrase));
       }
-    } else {
-      return Result.error(Exception(response.reasonPhrase));
+    } catch (e) {
+      return Result.error(e);
     }
   }
 }

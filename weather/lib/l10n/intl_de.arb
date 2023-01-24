@@ -1,0 +1,12 @@
+{
+  "themperaturLabel": "Themperatur:",
+  "huminityLabel": "Luftfeuchte:",
+  "pressureLabel": "Luftdruck:",
+  "errorMessageLocationServiceDisabled": "Dein GPS ist aus. Kein Wetter für dich.",
+  "errorMessageLocationPermissionDenied": "Du hast dem Zugriff auf deinen Standort abgelehnt. Kein Wetter für dich.",
+  "errorMessageLocationPermissionDeniedForever": "Du hast dem Zugriff auf deinen Standort dauerhaft abgelehnt. Kein Wetter für dich.",
+  "errorMessageLoadingFailedUndefined": "Leider kein Wetter gefunden",
+  "timeLabel": "Zeit:",
+  "weatherPageTitle": "Wetter",
+  "appTitle": "Weather"
+}

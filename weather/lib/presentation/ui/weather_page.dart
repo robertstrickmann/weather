@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:weather/data/weather_urls.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/domain/entities/weather.dart';
+import 'package:weather/generated/l10n.dart';
 import 'package:weather/presentation/bloc/load_weather_bloc.dart';
 import 'package:weather/presentation/bloc/load_weather_states.dart';
 import 'package:weather/presentation/ui/city_select_toggle.dart';
@@ -15,9 +17,9 @@ class WeatherPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.blue,
-        title: const Text(
-          "Wetter",
-          style: TextStyle(color: Colors.white),
+        title: Text(
+          S.of(context).weatherPageTitle,
+          style: const TextStyle(color: Colors.white),
         ),
       ),
       body: Column(
@@ -28,49 +30,43 @@ class WeatherPage extends StatelessWidget {
           BlocBuilder<LoadWeatherBloc, LoadWeatherState>(
               builder: (context, state) {
             if (state is LoadWeatherStateLocationServiceDisabled) {
-              return const LoadingFailedDisplay(
-                  message: "Dein GPS ist aus. Kein Wetter für dich.");
+              return LoadingFailedDisplay(
+                  message: S.of(context).errorMessageLocationServiceDisabled);
             } else if (state is LoadWeatherStateLocationPermissionDenied) {
-              return const LoadingFailedDisplay(
-                  message:
-                      "Du hast dem Zugriff auf deinen Standort abgelehnt. Kein Wetter für dich.");
+              return LoadingFailedDisplay(
+                  message: S.of(context).errorMessageLocationPermissionDenied);
             } else if (state
                 is LoadWeatherStateLocationPermissionDeniedForever) {
-              return const LoadingFailedDisplay(
-                  message:
-                      "Du hast dem Zugriff auf deinen Standort dauerhaft abgelehnt. Kein Wetter für dich.");
+              return LoadingFailedDisplay(
+                  message: S
+                      .of(context)
+                      .errorMessageLocationPermissionDeniedForever);
             } else if (state is LoadWeatherStateLoading) {
-              return const AnimatedSwitcher(
-                  duration: Duration(milliseconds: 250),
-                  child: WeatherDisplay(
-                    weather: null,
-                    key: ValueKey<Weather?>(null),
-                  ));
+              return _buildWeatherDisplayWithSwitcher(null);
             } else if (state is LoadWeatherStateRemoteSuccess &&
                 state.weather != null) {
-              return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: WeatherDisplay(
-                    weather: state.weather!,
-                    key: ValueKey(state.weather),
-                  ));
+              return _buildWeatherDisplayWithSwitcher(state.weather!);
             } else if (state is LoadWeatherStateRemoteFailure &&
                 state.weather != null) {
-              return AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  child: WeatherDisplay(
-                    weather: state.weather!,
-                    key: ValueKey(state.weather),
-                  ));
+              return _buildWeatherDisplayWithSwitcher(state.weather!);
             } else {
-              return const LoadingFailedDisplay(
+              return LoadingFailedDisplay(
                   // TODO: ev. auf fehlendes Netzwerk hinweisen
-                  message: "Leider kein Wetter gefunden");
+                  message: S.of(context).errorMessageLoadingFailedUndefined);
             }
           })
         ],
       ),
     );
+  }
+
+  AnimatedSwitcher _buildWeatherDisplayWithSwitcher(Weather? weather) {
+    return AnimatedSwitcher(
+        duration: const Duration(milliseconds: 250),
+        child: WeatherDisplay(
+          weather: weather,
+          key: ValueKey<Weather?>(weather),
+        ));
   }
 }
 
@@ -116,19 +112,19 @@ class WeatherDisplay extends StatelessWidget {
                           const BoxDecoration(color: Colors.lightBlueAccent),
                       child: weather == null
                           ? const Center(
-                            child: SizedBox(
+                              child: SizedBox(
                                 width: 50,
                                 height: 50,
                                 child: CircularProgressIndicator(
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(Colors.blue),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.blue),
                                 ),
                               ),
-                          )
-                          : Image(
-                              image: NetworkImage(
-                                WeatherUrls.getWeatherIconUrl(weather!.iconId),
-                              ),
+                            )
+                          : CachedNetworkImage(
+                              imageUrl: WeatherUrls.getWeatherIconUrl(
+                                  weather!.iconId),
+                              errorWidget: (context, url, error) => Container(),
                             ),
                     ),
                   ),
@@ -172,11 +168,17 @@ class WeatherDataList extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           WeatherRow(
-              label: "Themperatur:", text: weather.temperature.toString()),
-          WeatherRow(label: "Luftfeuchte:", text: weather.humidity.toString()),
-          WeatherRow(label: "Luftdruck:", text: weather.pressure.toString()),
+              label: S.of(context).themperaturLabel,
+              text: weather.temperature.toString()),
           WeatherRow(
-              label: "Zeit:", text: _getFormattedTime(weather.timestamp)),
+              label: S.of(context).huminityLabel,
+              text: weather.humidity.toString()),
+          WeatherRow(
+              label: S.of(context).pressureLabel,
+              text: weather.pressure.toString()),
+          WeatherRow(
+              label: S.of(context).timeLabel,
+              text: _getFormattedTime(weather.timestamp)),
         ]);
   }
 

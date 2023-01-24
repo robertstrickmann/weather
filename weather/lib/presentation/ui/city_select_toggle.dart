@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:weather/data/constants.dart';
-import 'package:weather/domain/entities/city.dart';
 import 'package:weather/presentation/bloc/load_weather_bloc.dart';
 import 'package:weather/presentation/bloc/load_weather_events.dart';
 import 'package:weather/presentation/bloc/selected_city_bloc.dart';

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:weather/generated/l10n.dart';
 import 'package:weather/presentation/bloc/load_weather_bloc.dart';
 import 'package:weather/presentation/bloc/selected_city_bloc.dart';
 import 'package:weather/presentation/bloc/selected_city_events.dart';
@@ -27,7 +29,14 @@ class WeatherApp extends StatelessWidget {
         BlocProvider(create: (_) => selectCityBloc)
       ],
       child: MaterialApp(
-        title: 'Weather',
+        onGenerateTitle: (context) => S.of(context).appTitle,
+        supportedLocales: const [Locale('de', '')],
+        localizationsDelegates: const [
+          S.delegate,
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
         theme: ThemeData(primarySwatch: Colors.blue),
         home: const WeatherPage(),
       ),

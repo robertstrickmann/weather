@@ -51,7 +51,7 @@ void main() {
   );
 
   test(
-    'should recognize repository results',
+    'should recognize repository success',
     () async {
       final List<ResultWithState<Weather>> repositoryEvents = [
         ResultWithState(
@@ -68,6 +68,28 @@ void main() {
           emitsInOrder([
             const LoadWeatherStateLoading(),
             LoadWeatherStateRemoteSuccess(testWeather),
+          ]));
+    },
+  );
+
+  test(
+    'should recognize repository failure',
+        () async {
+      final List<ResultWithState<Weather>> repositoryEvents = [
+        ResultWithState(
+            WeatherRequestState.remoteLoadingFailed, Result.error(Exception()))
+      ];
+      when(mocLoadWeatherUseCase.execute(any))
+          .thenAnswer((_) => Stream.fromIterable(repositoryEvents));
+
+      final blocStream = weatherBloc.stream;
+      weatherBloc.add(const LoadWeatherEventCityChanged(testCity));
+
+      expect(
+          blocStream,
+          emitsInOrder([
+            const LoadWeatherStateLoading(),
+            const LoadWeatherStateRemoteFailure(null),
           ]));
     },
   );
