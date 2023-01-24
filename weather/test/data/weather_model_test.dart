@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import '../tools/tools.dart';
 import 'package:weather/data/models/weather_model.dart';
-import 'package:weather/domain/entities/city.dart';
 import 'package:weather/domain/entities/weather.dart';
 
 void main() {
@@ -20,8 +19,6 @@ void main() {
       humidity: 88,
       description: "overcast clouds",
       iconId: "04n");
-
-  final testCity = City.mainz;
 
   test(
     'should read WeatherModel from json',

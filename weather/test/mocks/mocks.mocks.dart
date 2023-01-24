@@ -4,8 +4,8 @@
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
 import 'dart:async' as _i7;
-import 'dart:convert' as _i15;
-import 'dart:typed_data' as _i16;
+import 'dart:convert' as _i17;
+import 'dart:typed_data' as _i18;
 
 import 'package:async/async.dart' as _i3;
 import 'package:geolocator_platform_interface/src/enums/enums.dart' as _i14;
@@ -20,7 +20,11 @@ import 'package:weather/data/models/weather_model.dart' as _i10;
 import 'package:weather/domain/entities/city.dart' as _i2;
 import 'package:weather/domain/entities/weather.dart' as _i8;
 import 'package:weather/domain/repositories/weather_repository.dart' as _i4;
+import 'package:weather/domain/usecases/get_last_selected_city_use_case.dart'
+    as _i16;
 import 'package:weather/domain/usecases/get_weather_use_case.dart' as _i12;
+import 'package:weather/domain/usecases/set_last_selected_city_use_case.dart'
+    as _i15;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -469,6 +473,74 @@ class MockGeolocatorPlatform extends _i1.Mock
       ) as double);
 }
 
+/// A class which mocks [SaveSelectedCityUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockSaveSelectedCityUseCase extends _i1.Mock
+    implements _i15.SaveSelectedCityUseCase {
+  @override
+  _i4.WeatherRepository get repository => (super.noSuchMethod(
+        Invocation.getter(#repository),
+        returnValue: _FakeWeatherRepository_2(
+          this,
+          Invocation.getter(#repository),
+        ),
+        returnValueForMissingStub: _FakeWeatherRepository_2(
+          this,
+          Invocation.getter(#repository),
+        ),
+      ) as _i4.WeatherRepository);
+  @override
+  _i7.Future<dynamic> execute(_i2.City? city) => (super.noSuchMethod(
+        Invocation.method(
+          #execute,
+          [city],
+        ),
+        returnValue: _i7.Future<dynamic>.value(),
+        returnValueForMissingStub: _i7.Future<dynamic>.value(),
+      ) as _i7.Future<dynamic>);
+}
+
+/// A class which mocks [LoadSelectedCityUseCase].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLoadSelectedCityUseCase extends _i1.Mock
+    implements _i16.LoadSelectedCityUseCase {
+  @override
+  _i4.WeatherRepository get repository => (super.noSuchMethod(
+        Invocation.getter(#repository),
+        returnValue: _FakeWeatherRepository_2(
+          this,
+          Invocation.getter(#repository),
+        ),
+        returnValueForMissingStub: _FakeWeatherRepository_2(
+          this,
+          Invocation.getter(#repository),
+        ),
+      ) as _i4.WeatherRepository);
+  @override
+  _i7.Future<_i2.City> execute() => (super.noSuchMethod(
+        Invocation.method(
+          #execute,
+          [],
+        ),
+        returnValue: _i7.Future<_i2.City>.value(_FakeCity_0(
+          this,
+          Invocation.method(
+            #execute,
+            [],
+          ),
+        )),
+        returnValueForMissingStub: _i7.Future<_i2.City>.value(_FakeCity_0(
+          this,
+          Invocation.method(
+            #execute,
+            [],
+          ),
+        )),
+      ) as _i7.Future<_i2.City>);
+}
+
 /// A class which mocks [Client].
 ///
 /// See the documentation for Mockito's code generation for more information.
@@ -536,7 +608,7 @@ class MockHttpClient extends _i1.Mock implements _i6.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -579,7 +651,7 @@ class MockHttpClient extends _i1.Mock implements _i6.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -622,7 +694,7 @@ class MockHttpClient extends _i1.Mock implements _i6.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -665,7 +737,7 @@ class MockHttpClient extends _i1.Mock implements _i6.Client {
     Uri? url, {
     Map<String, String>? headers,
     Object? body,
-    _i15.Encoding? encoding,
+    _i17.Encoding? encoding,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -718,7 +790,7 @@ class MockHttpClient extends _i1.Mock implements _i6.Client {
         returnValueForMissingStub: _i7.Future<String>.value(''),
       ) as _i7.Future<String>);
   @override
-  _i7.Future<_i16.Uint8List> readBytes(
+  _i7.Future<_i18.Uint8List> readBytes(
     Uri? url, {
     Map<String, String>? headers,
   }) =>
@@ -728,10 +800,10 @@ class MockHttpClient extends _i1.Mock implements _i6.Client {
           [url],
           {#headers: headers},
         ),
-        returnValue: _i7.Future<_i16.Uint8List>.value(_i16.Uint8List(0)),
+        returnValue: _i7.Future<_i18.Uint8List>.value(_i18.Uint8List(0)),
         returnValueForMissingStub:
-            _i7.Future<_i16.Uint8List>.value(_i16.Uint8List(0)),
-      ) as _i7.Future<_i16.Uint8List>);
+            _i7.Future<_i18.Uint8List>.value(_i18.Uint8List(0)),
+      ) as _i7.Future<_i18.Uint8List>);
   @override
   _i7.Future<_i6.StreamedResponse> send(_i6.BaseRequest? request) =>
       (super.noSuchMethod(

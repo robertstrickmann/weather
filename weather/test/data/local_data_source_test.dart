@@ -8,7 +8,6 @@ import 'package:weather/domain/entities/city.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import '../mocks/mocks.mocks.dart';
 import '../tools/tools.dart';
 
 void main() {
@@ -76,4 +75,18 @@ void main() {
       expect(result, equals(testCity));
     },
   );
+
+  test(
+    'should return valid default city if nothing was saved',
+        () async {
+      SharedPreferences.setMockInitialValues({});
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      LocalDataSourceImpl localDataSource = LocalDataSourceImpl(prefs: prefs);
+
+      final result = await localDataSource.getLastSelectedCity();
+
+      expect(result, equals(isNotNull));
+    },
+  );
+
 }
